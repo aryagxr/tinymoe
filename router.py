@@ -9,11 +9,11 @@ import torch.nn.functional as F
 # each element is a score for the expert
 
 
-emb_dim = 6
-num_experts = 3
-topk = 2
-mh_output = torch.randn(2, 4, emb_dim)
-print(mh_output)
+# emb_dim = 6
+# num_experts = 3
+# topk = 2
+# mh_output = torch.randn(2, 4, emb_dim)
+# print(mh_output)
 
 class Router(nn.Module):
     def __init__(self, emb_dim, num_experts):
@@ -23,7 +23,7 @@ class Router(nn.Module):
         # noise
         self.gaussian_noise = nn.Linear(emb_dim, num_experts)
 
-    def forward(self, mha_out):
+    def forward(self, mha_out, topk):
         logits = self.gate(mha_out)
 
         # load balancing
@@ -55,10 +55,10 @@ class Router(nn.Module):
 
 
 
-router = Router(emb_dim, num_experts)
-print(router)
+# router = Router(emb_dim, num_experts)
+# print(router)
 
-router_out = router(mh_output)
-print(router_out)
+# router_out = router(mh_output)
+# print(router_out)
 
 
