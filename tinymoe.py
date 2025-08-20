@@ -7,11 +7,12 @@ from router import Router
 from experts import Expert
 
 
-num_experts = 3
-emb_dim = 6
+num_experts = 8
 topk = 2
+emb_dim = 16
+dropout=0.1
 
-mh_output = torch.randn(2, 4, emb_dim)
+mh_output = torch.randn(2, 4, emb_dim) # batch_size, seq_len, emb_dim
 print("mh_output: ", mh_output)
 
 
@@ -25,33 +26,34 @@ class TinyMoE(nn.Module):
         gate_out, topk_idx = self.router(x, topk)
         moe_out = torch.zeros_like(x)
         xflat = x.view(-1, emb_dim)
-        flatgate = gate_out.view(-1, num_experts)
-
-        print("indices: ", topk_idx)
+        flatgate = gate_out.view(-1, num_experts) #flatten router output to 2d
+        
 
         for i, expert in enumerate(self.experts):
-            # print("i: ", i, "expert: ", expert)
             mask = (topk_idx == i).any(dim=-1)
-            print("mask: ", mask)
 
-            # flatten so each value represents a single token
-            flatmask = mask.view(-1)
-            print("flatmask: ", flatmask)
-            print("xflat: ", xflat)
+            if mask.any():
 
-            # this removes the tokens that are at the false index of the flatmask
-            expert_tokens = xflat[flatmask]
-            print("expert_tokens: ", expert_tokens)
+                # flatten so each value represents a single token
+                flatmask = mask.view(-1)               
 
-            expert_out = expert(expert_tokens)
-            print("expert_out: ", expert_out)
+                # this removes the tokens that are at the false index of the flatmask
+                expert_tokens = xflat[flatmask]
+                expert_out = expert(expert_tokens)
+                
+                
+                gater_score = flatgate[flatmask, i].unsqueeze(1) # ith column represents each expert
+                weighted_expert_out = expert_out * gater_score
+                # insert back into final moe output matrix
+                moe_out[mask] += weighted_expert_out
+                print("moe_out: ", moe_out)
+        
+        return moe_out
+                
+                
+            
         
             
-
-
-
-
-
 
 # call forward
 tinymoe = TinyMoE()
