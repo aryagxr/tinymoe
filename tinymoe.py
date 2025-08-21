@@ -5,12 +5,7 @@ import torch
 import torch.nn as nn
 from router import Router
 from experts import Expert
-
-
-num_experts = 8
-topk = 2
-emb_dim = 16
-dropout=0.1
+from config.config import num_experts, topk, emb_dim
 
 mh_output = torch.randn(2, 4, emb_dim) # batch_size, seq_len, emb_dim
 print("mh_output: ", mh_output)

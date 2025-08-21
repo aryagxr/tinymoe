@@ -1,10 +1,7 @@
 
 import torch
 import torch.nn as nn
-
-
-# move these to config later
-dropout = 0.1
+from config.config import *
 
 class Expert(nn.Module):
     def __init__(self, in_dim, out_dim):
